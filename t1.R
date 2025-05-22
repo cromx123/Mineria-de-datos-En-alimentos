@@ -208,4 +208,9 @@ grafico3 <- ggplot(tabla_categoriaS, aes(x = reorder(categoria, -valor), y = val
   theme_minimal() +
   coord_flip()
 
-print(grafico3)
+# print(grafico3)
+
+# Graficos a guardar
+ggsave("grafico_promedio_restaurantes.png", plot = grafico, width = 10, height = 6)
+ggsave("grafico_cant_items_saludables.png", plot = grafico2, width = 10, height = 6)
+ggsave("grafico_promedios_nutricionales.png", plot = grafico3, width = 10, height = 6)
