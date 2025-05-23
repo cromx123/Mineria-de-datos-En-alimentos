@@ -3,16 +3,17 @@
 Este repositorio contiene un proyecto desarrollado como parte de una **evaluación del curso de Minería de Datos**, centrado en el análisis de información nutricional de productos ofrecidos por distintas cadenas de comida rápida.
 
 ## 📁 Estructura del Proyecto
-
-├── evaluacion_CG.R # Script principal con el análisis y visualizaciones
-├── fastfood_calories.csv # Dataset original con información nutricional
-├── valores_final.csv # Dataset enriquecido y final
-├── clasificacion_items.csv # Clasificación de productos (saludable/no saludable)
-├── info_restaurantes.csv # Información complementaria de los restaurantes
+```text
+├── evaluacion_CG.R             # Script principal con el análisis y visualizaciones
+├── fastfood_calories.csv       # Dataset original con información nutricional
+├── valores_final.csv           # Dataset enriquecido y final
+├── clasificacion_items.csv     # Clasificación de productos (saludable/no saludable)
+├── info_restaurantes.csv       # Información complementaria de los restaurantes
 ├── grafico_promedio_restaurantes.png
 ├── grafico_cant_items_saludables.png
 ├── grafico_promedios_nutricionales.png
-└── README.md 
+└── README.md
+```
 
 ## 🧠 Objetivo
 
@@ -79,4 +80,4 @@ Ejemplo:
 
 ## 📄 Licencia
 
-Este proyecto está bajo una licencia académica. Uso educativo únicamente.
+Medica, porfavor
