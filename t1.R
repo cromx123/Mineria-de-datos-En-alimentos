@@ -10,25 +10,20 @@
 # 1. Comparación por restaurantes
 comparacion_por_restaurantes <- function(df, grupo_var = "restaurant") {
   # Calcular promedios
-  resumen <- aggregate(cbind(calories, total_fat, sodium) ~ get(grupo_var), 
-                       data = df, FUN = mean, na.rm = TRUE)
+  resumen <- aggregate(cbind(calories, total_fat, sodium) ~ get(grupo_var), data = df, FUN = mean, na.rm = TRUE)
   
-  # Renombrar la columna de grupo para que siempre se llame igual
   colnames(resumen)[1] <- grupo_var
   
-  # Crear formato largo manualmente
   variable <- rep(c("Calorías", "Grasa Total", "Sodio"), each = nrow(resumen))
   valor <- c(resumen$calories, resumen$total_fat, resumen$sodium)
   grupo <- rep(resumen[[grupo_var]], times = 3)
   
-  # Crear dataframe largo
   datos_largos <- data.frame(
     grupo = grupo,
     variable = variable,
     valor = valor
   )
   
-  # Renombrar la columna grupo al nombre original (restaurant, por ejemplo)
   colnames(datos_largos)[1] <- grupo_var
   
   return(datos_largos)
@@ -45,11 +40,26 @@ es_saludable_func <- function(df) {
   )
 }
 # 3. Contador de productos saludables de cada restaurante
-contador_saludables <- function(df) {
-  # Contar la cantidad de productos saludables por restaurante
-  conteo <- aggregate(es_saludable_func(df), by = list(df$restaurant), FUN = sum)
-  colnames(conteo) <- c("restaurant", "saludables")
-  return(conteo)
+conteo_saludables <- function(df, grupo_var = "restaurant") {
+  # Evaluar si cada ítem es saludable
+  df$es_saludable <- es_saludable_func(df)
+  
+  # Crear tabla de conteo por grupo
+  tabla <- aggregate(es_saludable ~ get(grupo_var), data = df, FUN = function(x) c(saludables = sum(x), no_saludables = sum(!x)))
+  
+  # Separar la lista en dos columnas
+  conteo <- do.call(data.frame, tabla)
+  colnames(conteo) <- c(grupo_var, "saludables", "no_saludables")
+  
+  # Reestructurar a formato largo
+  variable <- rep(c("saludables", "no_saludables"), each = nrow(conteo))
+  valor <- c(conteo$saludables, conteo$no_saludables)
+  grupo <- rep(conteo[[grupo_var]], times = 2)
+  
+  datos_largos <- data.frame(grupo = grupo, tipo = variable, cantidad = valor)
+  colnames(datos_largos)[1] <- grupo_var
+  
+  return(datos_largos)
 }
 # 4. Promedio de por_calorias_grasa, indice_salud y sodio_por_proteina por categoria
 promedio_por_categoria <- function(df, grupo_var = "categoria") {
@@ -185,20 +195,21 @@ grafico <- ggplot(datos_para_grafico, aes(x = reorder(restaurant, -valor), y = v
 # print(grafico)
 
 # 2. Gráfico de Cantidad de items saludables por restaurante
-saludables_por_restaurante <- contador_saludables(valores_final)
-grafico2 <- ggplot(saludables_por_restaurante, aes(x = reorder(restaurant, -saludables), y = saludables)) +
-  geom_col(fill = "forestgreen") +
-  labs(title = "Cantidad de items saludables por restaurante",
+saludables_por_restaurante <- conteo_saludables(valores_final)
+grafico2 <-  ggplot(saludables_por_restaurante, aes(x = reorder(restaurant, -cantidad), y = cantidad, fill = tipo)) +
+  geom_col(position = "dodge") +
+  labs(title = "Conteo de ítems saludables y no saludables por restaurante",
        x = "Restaurante",
-       y = "Número de items saludables") +
+       y = "Cantidad de items") +
+  scale_fill_manual(values = c("saludables" = "forestgreen", "no_saludables" = "firebrick")) +
   theme_minimal() +
   coord_flip()
 
-# print(grafico2)
+#print(grafico2)
 
 # 3. Gráfico de Porcentaje de calorías de grasa por categoría
 tabla_categoriaS <- promedio_por_categoria(valores_final)
-print(tabla_categoriaS)
+# print(tabla_categoriaS)
 grafico3 <- ggplot(tabla_categoriaS, aes(x = reorder(categoria, -valor), y = valor, fill = variable)) +
   geom_col(position = "dodge") +
   labs(title = "Promedios nutricionales por restaurante",
@@ -214,3 +225,10 @@ grafico3 <- ggplot(tabla_categoriaS, aes(x = reorder(categoria, -valor), y = val
 ggsave("grafico_promedio_restaurantes.png", plot = grafico, width = 10, height = 6)
 ggsave("grafico_cant_items_saludables.png", plot = grafico2, width = 10, height = 6)
 ggsave("grafico_promedios_nutricionales.png", plot = grafico3, width = 10, height = 6)
+# Guardar el dataframe final
+write.csv(valores_final, "valores_final.csv", row.names = FALSE)
+# Guardar el dataframe clasificado
+write.csv(clasificacion_items, "clasificacion_items.csv", row.names = FALSE)
+# Guardar el dataframe de restaurantes
+write.csv(info_restaurantes, "info_restaurantes.csv", row.names = FALSE)
+
